@@ -28,6 +28,9 @@ def generate_schedule(schedule_data, enrolled_courses):
     # Create a new iCal calendar
     cal = Calendar()
 
+    # Create a set to keep track of added courses
+    added_courses = set()
+
     # Loop through the schedule data and filter based on enrolled courses
     for line in schedule_data.split('\n'):
         if line.strip():  # Ignore empty lines
@@ -51,7 +54,7 @@ def generate_schedule(schedule_data, enrolled_courses):
                 start_time = time_str
 
                 # Check if the course is in the list of enrolled courses
-                if course in enrolled_courses:
+                if course in enrolled_courses and course not in added_courses:
                     # Parse date and time
                     date_parts = date_str.split('/')
                     month, day, year = map(int, date_parts)
@@ -69,6 +72,9 @@ def generate_schedule(schedule_data, enrolled_courses):
 
                     # Add event to the calendar
                     cal.add_component(event)
+
+                    # Add the course to the set of added courses
+                    added_courses.add(course)
             except ValueError:
                 pass
 
