@@ -2,7 +2,7 @@
 Create ical files to import Cornell exams into personal Google Calendar
 
 # How to use:
-Download the desired file (prelim_schedule or final_schedule)
+Download the desired file (prelim_schedule or final_schedule) /n
 Have python installed
 CD into the folder where the python file is located on your local computer
 If you have not already, run "pip install icalendar"
