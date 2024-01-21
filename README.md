@@ -1,6 +1,7 @@
 # Exam Schedule Generator
 
 This is a Python script turned into an executable that allows users to generate iCalendar (ICS) files for their course exam schedules. The script scrapes exam schedules from the Cornell University Registrar's website and creates separate ICS files for prelim and final exams to be imported into Google Calendar.
+Most easily used through Google Colab: https://colab.research.google.com/drive/1eEBoLhFMpWD5JqpCx1nHJ-cGyaDslXMr?usp=sharing
 
 ## Features
 
