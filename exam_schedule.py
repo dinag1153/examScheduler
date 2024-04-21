@@ -4,10 +4,28 @@ from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 
+def is_page_valid(url):
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        return not soup.find('h3', string='404 Page!')
+    except Exception as e:
+        return False
+
 def get_schedule_url(exam_type, semester):
     base_url = "https://registrar.cornell.edu/exams/"
-    semester_url = f"{semester}-final-exam-schedule" if exam_type == "final" else f"{semester}-prelim-exam-schedule"
-    return f"{base_url}{semester_url}"
+
+    url_patterns = [
+        f"{semester}-{exam_type}-schedule",
+        f"{semester}-{exam_type}-exam-schedule"
+    ]
+
+    for url_pattern in url_patterns:
+        full_url = f"{base_url}{url_pattern}"
+        if is_page_valid(full_url):
+            return full_url
+
+    return None
 
 def get_schedule_data(url):
     page = requests.get(url)
@@ -22,6 +40,7 @@ def generate_schedule(enrolled_courses, semester, exam_type):
 
     cal = Calendar()
     added_courses = set()
+    exams = []
 
     for line in schedule_data.split('\n'):
         if line.strip():
@@ -63,6 +82,9 @@ def generate_schedule(enrolled_courses, semester, exam_type):
                     cal.add_component(event)
                     if exam_type == "final":
                         added_courses.add(course)
+
+                    exams.append({'course': course, 'date': date_str})
+
             except ValueError:
                 pass
 
@@ -70,6 +92,13 @@ def generate_schedule(enrolled_courses, semester, exam_type):
     with open(filename, 'wb') as f:
         f.write(cal.to_ical())
     print(f"Success: {semester} {exam_type} exam schedule generated and saved as '{filename}'")
+
+    print("\nExam Summary:")
+    print("--------------")
+
+    for exam in exams:
+        print(f"{exam['course']} - {exam['date']}")
+
     sys.exit(0)
 
 def menu():
@@ -87,7 +116,7 @@ def menu():
     generate_schedule(enrolled_courses, semester, exam_type)
 
 def get_enrolled_courses():
-    print("Enter your enrolled courses in the form PHYS 1234 (one per line), and press Enter twice when you're done:")
+    print("Enter your enrolled courses in the form PHYS 1234 (one per line, pressing Enter in between each course), and press Enter twice when you're done:")
     enrolled_courses = []
     while True:
         course_input = input().strip().upper()
@@ -96,5 +125,10 @@ def get_enrolled_courses():
         enrolled_courses.append(course_input)
     return enrolled_courses
 
-if __name__ == "__main__":
-    menu()
+try:
+  if __name__ == "__main__":
+      menu()
+except SystemExit as e:
+    pass
+except Exception as e:
+    print(f"An error occurred: {e}")
